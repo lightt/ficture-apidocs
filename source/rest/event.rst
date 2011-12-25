@@ -1,12 +1,12 @@
-Event
-=====
+Events
+======
 
 Events are Fictures. Fictures are Events. 
 
 **WHAT?**
 
 Specifically, Events associate a collection of photos (a minumum of 6) and 
-metadata with a single instance in the time space continum (and the Ficture 
+metadata with a single instance in the timespace continuum (and the Ficture 
 Ecosystem). 
 
 When an Event is created, it's assumed that it will eventually
@@ -14,11 +14,151 @@ be published to one of the many Streams on Ficture. Publishing into
 streams is handled automatically by our system, and it is dependent on
 state attached to the logged in user, such as their privacy settings.
 
+.. http:response:: Event object
+
+   :data string id: The unique identifier for this event. Typically 22-23
+       characters
+   :data integer seen: Whether or not this has been seen by the logged in
+       user - user must be logged in for this to be present.
+   :data string username: The fully rendered name of the user who
+       captured this event.
+   :data string location_name: The fully rendered name of the location
+       where the user captured this event. May be empty.
+   :data integer user: ID of user who captured the event.
+   :data double created: Double-precision floating point UTC timestamp of
+       when the Event was captured.
+   :data integer privacy: The privacy of this Event. See Privacy.
+   :data double latitude: Latitude where this Event was captured
+   :data double longitude: Longitude where this Event was captured
+   :data integer number_of_frames: Total frames in this Event
+   :data string timesince: Fully rendered "time since" string that
+       describes the time that has passed since the Event was captured.
+   :data hash strips: Strips hash, see **Strips** below
+   :data hash batches: Batches hash, see **Batches** below
+   :data array frames: Frames array, see **Frames** below
+   :format: JSON
+
+   Event objects come in two forms. The most readable and approachable,
+   the full representation, is shown below. It includes full URLs, and a
+   large amount of metadata intact. Not surprisingly, it's also the most
+   expensive to generate, largest to download and slowest to work with.
+   Therefore it's recommended to use full Event objects only when all this
+   information is actually used. E.g. downloading huge Streams of full
+   Events will get your app banned from the API pretty quickly.
+
+   A full Event object::
+
+        {
+           "username": "Earl Shuman",
+           "user": 322,
+           "location_name": "Orland, CA",
+           "name": "untitled",
+           "privacy": 1,
+           "timesince": "2 hours ago",
+           "created": 132478167193295,
+           "longitude": -122.19111,
+           "latitude": 39.73517,
+           "seen": 1,
+           "number_of_frames": 13,
+           "id": "DFHCjcLqMR4adGEjE7CMHh",
+           "status": "published",
+           "strips": {
+             "{{SIZE}}": { # one hash per size
+               "urls": ["{{FRAME_BASEURL}}/{{EVENT_ID}}/{{SIZE}}1-13.jpg"],
+               "indexes": [[1, 13]]
+             }
+           },
+           "batches": {
+             "{{SIZE}}": { # one hash per size
+               "urls": ["{{FRAME_BASEURL}}/{{EVENT_ID}}/{{SIZE}}1-13.bjpeg"],
+               "indexes": [[1, 13]]
+             }
+           },
+           "frames":[
+              [{ # array for each frame, hash in each for each size
+                 "url": "{{FRAME_BASEURL}}/{{EVENT_ID}}/{{FRAME_ID}}-{{SIZE}}.jpg",
+                 "key": "frame0-original-key",
+                 "size": "original",
+                 "id": "DFHCjcLqMR4adGEjE7CMHh"
+               }]
+           ]
+         }
+   
+   More useful when fetching large numbers of Events is the compact Event
+   representation. The compact representation contains skeletal frame data
+   (just enough to be able to construct the URLs yourself) and just enough
+   metadata to be useful for playback.
+   
+   A compact Event object::
+
+        {
+           "username": "MeeSun Boice",
+           "seen": 1,
+           "id": "BSRKjwLq8R4adGEjE7CMHh",
+           "user": 297,
+           "location_name": "Half Moon Bay, CA",
+           "created": 132478663322114,
+           "strips": [[1, 13], [14, 18]], # in compact contains only the indexes
+           "batches": [[1, 13], [14, 18]], # in compact contains only the indexes
+           "frames": [ # in compact contains only the frame IDs
+             "ByKKOeOYBPHImHvxW72OvX", # one for each frame
+           ]
+        }
+
+   NOTE:
+     Any API response that includes an Event object will also have the
+     ``frame_baseurl`` field in it's ``meta`` hash. This is used to
+     construct the full URL for frames, batches and strips.
+   
+   Frame Sizes:
+     All frames are stored in JPEG format and stored in a variety of sizes
+     and qualities, thoughtfully optimized around various display
+     requirements and bandwidth constraints:
+    
+     * **thumb-s** 50x50 in low quality
+     * **thumb** 100x100 in medium quality
+     * **small** 240x240 in low-medium quality
+     * **medium** 480x480 in medium quality
+     * **full** 640x640 in high quality
+     * **original** original size in original quality
+   
+   Frames:
+     Frames are strictly ordered by the order they should be displayed in
+     to make sense to a viewer. Once an event has frames, no more frames
+     can be added, and frames can not be removed. To construct frame URLs
+     from the compact response use the following format::
+     
+        {meta.frame_baseurl}{items[NUM].id}/{items[NUM].frames[FRAME_NUM]}-{SIZE}.jpg
+   
+   Strips:
+     Strips are prerendered JPEGs of frames in Events arranged
+     end-to-end, with the goal of minimizing the amount of network roundtrips
+     required to download an entire Event. Since there could potentially
+     be many frames in an Event, strips are limited in size, therefore
+     there could be multiple strips per event. 
+     
+     Strips are defined by their one-indexed bounds. E.g. ``small1-13.jpg`` 
+     contains the small frames 1 thru 13. You can determine strip
+     boundaries by the ``indexes`` field in the ``strips`` hash. Each
+     two-tuple defines the boundaries of an individual strip.
+     
+     To construct strip URLs from the compact response use the following 
+     format::
+
+        {meta.frame_baseurl}{items[NUM].id}{SIZE}{items[NUM].strips[STRIP_NUM][0]}-{items[NUM].strips[STRIP_NUM][1]}.jpg
+
+   Batches:
+     Batches are the same idea as strips, but optimized even further for
+     clients that can process binary data. The URLS are generated exactly
+     the same but with the extension ``bjpeg``
+
+
+
 .. http:method:: GET events/{id}/
 
    :arg id: The ID of the Event to retrieve.
 
-   Returns a single Event.
+   Returns a single :http:response:`event-object` in the ``items`` key
 
 
 .. http:method:: POST events/
@@ -85,7 +225,7 @@ state attached to the logged in user, such as their privacy settings.
     
      Example ``multipart/form-data`` body::
 
-        POST /api/v1/films/abcd1234/events/
+        POST /api/v1/events/
         Content-Type: multipart/form-data; boundary=--asdf1
         Content-Length: 1234
         --asdf1
@@ -97,7 +237,7 @@ state attached to the logged in user, such as their privacy settings.
         Content-Disposition: form-data; name="photo-0-meta"; filename="photo0.json"
         Content-Type: application/json
         
-        {'some': 'metadata': ['here', 'for photo 2']}
+        {'some': 'metadata': ['here', 'for photo 1']}
         --asdf1
         Content-Disposition: form-data; name="photo-1"; filename="photo1.jpg"
         Content-Length: 1234
@@ -154,3 +294,4 @@ state attached to the logged in user, such as their privacy settings.
    Once an Event is removed it **CAN NOT** be restored. We remove the
    Event immediatly from our system. However, it may remain cached in
    clients for however said clients choose to cache them.
+
