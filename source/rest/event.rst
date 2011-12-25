@@ -105,7 +105,7 @@ state attached to the logged in user, such as their privacy settings.
            ]
         }
 
-   NOTE:
+   .. note::
      Any API response that includes an Event object will also have the
      ``frame_baseurl`` field in it's ``meta`` hash. This is used to
      construct the full URL for frames, batches and strips.
@@ -151,6 +151,10 @@ state attached to the logged in user, such as their privacy settings.
      Batches are the same idea as strips, but optimized even further for
      clients that can process binary data. The URLS are generated exactly
      the same but with the extension ``bjpeg``
+   
+
+   .. seealso::
+     Streams
 
 
 
@@ -180,7 +184,8 @@ state attached to the logged in user, such as their privacy settings.
 
    Only logged in users may create Events. Events are associated with the
    logged in user and will by default publish immediately to their
-   Streams.
+   Streams. Additionally, only okay-ed consumers may create Events. Email
+   ``support@ficture.it`` to have your consumer whitelisted.
 
    Upon submitting new Events, our system must do some processing which is
    completed asynchronously, which has the side effect that the entire

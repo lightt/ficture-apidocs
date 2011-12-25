@@ -11,7 +11,7 @@ Contents:
    :maxdepth: 2
 
    intro
-   rest/index
+   rest/*
 
 
 

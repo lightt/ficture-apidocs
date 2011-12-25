@@ -22,3 +22,59 @@ div.documentwrapper {
 }
   {%- endif %}
 {%- endblock %}
+
+tt.docutils .pre {
+  font-family: Monaco, Andale Mono, Courier New, monospace;
+  font-size: 12px;
+  background-color: #fee9cc;
+  color: rgba(0, 0, 0, 0.75);
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  padding: 1px 3px;
+}
+
+th.field-name { width: 150px; }
+dt {
+	font-size: 14px; 
+	display: block;
+	margin-bottom: 3px;
+}
+.method > dt {
+	font-size: 16px;
+	border-bottom: 1px solid #ddd; 
+	padding-bottom: 2px;
+	margin-bottom: 10px;
+	display: block;
+  font-family: Monaco, Andale Mono, Courier New, monospace;
+}
+.response > dt {
+	font-size: 18px;
+	border-bottom: 1px solid #ddd; 
+	padding-bottom: 2px;
+	margin-bottom: 4px;
+	display: block;
+}
+.deschttpmethod {
+}
+.note .first {
+  padding: 1px 3px 2px;
+  font-size: 9.75px;
+  font-weight: bold;
+  color: #ffffff;
+  text-transform: uppercase;
+  white-space: nowrap;
+  background-color: #bfbfbf;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+}
+.highlight pre {
+}
+dl.method {
+	margin-bottom: 30px;
+}
+th.field-name {
+	padding: 0;
+	text-align: left;
+}
