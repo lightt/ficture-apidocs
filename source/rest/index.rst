@@ -6,4 +6,5 @@ This is the Ficture REST API documentation.
 .. toctree::
    :maxdepth: 2
 
-   event
+   overview
+   methods

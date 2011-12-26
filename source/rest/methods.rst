@@ -1,4 +1,8 @@
-REST API
-========
+HTTP Methods
+============
 
-Rests a lot
+.. toctree::
+
+   event
+   eventobject
+   stream

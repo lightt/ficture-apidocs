@@ -1,3 +1,6 @@
+.. index::
+   single: event
+
 Events
 ======
 
@@ -13,6 +16,9 @@ When an Event is created, it's assumed that it will eventually
 be published to one of the many Streams on Ficture. Publishing into
 streams is handled automatically by our system, and it is dependent on
 state attached to the logged in user, such as their privacy settings.
+
+Event Object
+############
 
 .. http:response:: Event object
 
@@ -157,13 +163,17 @@ state attached to the logged in user, such as their privacy settings.
      Streams
 
 
+GET events/{id}
+###############
 
-.. http:method:: GET events/{id}/
+.. http:method:: GET events/{id}
 
    :arg id: The ID of the Event to retrieve.
 
    Returns a single :http:response:`event-object` in the ``items`` key
 
+POST events/
+############
 
 .. http:method:: POST events/
 
@@ -277,8 +287,10 @@ state attached to the logged in user, such as their privacy settings.
      creation privliges may be revoked if your application creates
      duplicate Events in the system frequently.
 
+PUT events/{id}
+###############
 
-.. http:method:: PUT events/{id}/
+.. http:method:: PUT events/{id}
 
    :arg id: The ID of the Event to update.
    :optparam string name: Events can be named with a string up to 55 characters
@@ -291,7 +303,10 @@ state attached to the logged in user, such as their privacy settings.
    metadata may be updated. Photos attached to an Event however can not be
    updated.
 
-.. http:method:: DELETE events/{id}/
+DELETE events/{id}
+##################
+
+.. http:method:: DELETE events/{id}
 
    :arg id: The ID of the Event to delete.
 

@@ -1,6 +1,6 @@
 
-Hi
-==
+Welcome!
+========
 
 You have reached the epicenter of 3rd party Ficture development. Ficture
 is a platform for development of awesome projects.
@@ -8,10 +8,9 @@ is a platform for development of awesome projects.
 Contents:
 
 .. toctree::
-   :maxdepth: 2
 
    intro
-   rest/*
+   rest/index.rst
 
 
 
