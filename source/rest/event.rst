@@ -31,8 +31,10 @@ Event Object
    :data string location_name: The fully rendered name of the location
        where the user captured this event. May be empty.
    :data integer user: ID of user who captured the event.
-   :data double created: Double-precision floating point UTC timestamp of
-       when the Event was captured.
+   :data double captured: UTC timestamp of when the Event was *captured*
+       with sub-second intervals
+   :data double created: UTC timestamp ofwhen the Event was *uploaded* with
+       sub-second intervals
    :data integer privacy: The privacy of this Event. See Privacy.
    :data double latitude: Latitude where this Event was captured
    :data double longitude: Longitude where this Event was captured
@@ -61,6 +63,7 @@ Event Object
            "name": "untitled",
            "privacy": 1,
            "timesince": "2 hours ago",
+           "captured": 1234234234234234,
            "created": 132478167193295,
            "longitude": -122.19111,
            "latitude": 39.73517,
@@ -163,19 +166,34 @@ Event Object
      Streams
 
 
-GET events/{id}
-###############
+Read
+####
 
-.. http:method:: GET events/{id}
+.. http:method:: GET events/{id}.{format}
 
    :arg id: The ID of the Event to retrieve.
+   :arg format: The desired data format.
 
    Returns a single :http:response:`event-object` in the ``items`` key
 
-POST events/
-############
+Pending
+#######
 
-.. http:method:: POST events/
+.. http:method:: GET events/pending.{format}
+
+   :arg format: The desired data format.
+
+   Returns a list of stubs similar to what you get back when creating an
+   event. Only Event references that are pending, that is, they were
+   submitted with ``publish=0`` and have not yet been published, will show
+   up in this list. 
+
+Creating
+########
+
+.. http:method:: POST events.{format}
+   
+   :arg format: The desired data format.
 
    :optparam string name: Events can be named with a string up to 55 characters
    :optparam double captured: UTC timestamp (may include sub-second
@@ -210,6 +228,7 @@ POST events/
      {'items': [{
         'id': '{EVENT_ID}',
         'type': 'event',
+        'pending': 0,
         'status': 'received'}],
       'meta': {}}
    
@@ -277,6 +296,9 @@ POST events/
      captures them, and immediatly upon approving them, publishes them for
      their friends and/or everyone to see.
 
+     Use :http:method:`GET events/pending.{format}` to retrieve a list of
+     currently pending (non-published) events.
+
    Upload Token
      The ``ut`` parameter may be used by your system to signify a single
      upload attempt. Multiple attempts ``POST`` to this method that have
@@ -287,13 +309,16 @@ POST events/
      creation privliges may be revoked if your application creates
      duplicate Events in the system frequently.
 
-PUT events/{id}
-###############
+Updating
+########
 
-.. http:method:: PUT events/{id}
+.. http:method:: PUT events/{id}.{format}
 
    :arg id: The ID of the Event to update.
+   :arg format: The desired data format.
    :optparam string name: Events can be named with a string up to 55 characters
+   :optparam integer publish: If the event is unpublished, passing ``1``
+       here will publish it.
    :optparam double captured: UTC timestamp (may include sub-second
        intervals)
    :optparam double latitude: Latitude at which Event was captured.
@@ -303,12 +328,18 @@ PUT events/{id}
    metadata may be updated. Photos attached to an Event however can not be
    updated.
 
-DELETE events/{id}
-##################
+   This method is also used to publish pending Events. If when you
+   uploaded an Event, ``publish`` was set to ``0`` then ``PUT``-ing here
+   with ``publish=1`` will append the Event to the user's relevant
+   Streams.
 
-.. http:method:: DELETE events/{id}
+Deleting
+########
+
+.. http:method:: DELETE events/{id}.{format}
 
    :arg id: The ID of the Event to delete.
+   :arg format: The desired data format.
 
    Removes an Event from Ficture and from the user's relevent Streams.
    Once an Event is removed it **CAN NOT** be restored. We remove the
