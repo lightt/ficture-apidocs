@@ -1,4 +1,5 @@
 Stream
 ======
 
-Streams are how Events are organized and delivered.
+Streams are collections of Events and primarily how you access Events via
+Ficture.

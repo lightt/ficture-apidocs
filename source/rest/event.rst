@@ -4,18 +4,19 @@
 Events
 ======
 
-Events are Fictures. Fictures are Events. 
+Events are Fictures.
 
-**WHAT?**
+Events represent instances in time where a collection of photos are taken
+in rapid succession. An Event encapsulates a moment in time visually.
+Imagine a camera in burst mode, taking several shots quickly to capture
+just the right moment. An Event would contain all the frames the camera
+captured each time the shutter button is pressed in burst mode.
 
-Specifically, Events associate a collection of photos (a minumum of 6) and 
-metadata with a single instance in the timespace continuum (and the Ficture 
-Ecosystem). 
+Events are published to a number of Streams automatically whenever they
+are uploaded (this behavior can be deferred). Events have a *many to many*
+relationship to Streams. An Event may occur in a number of different
+Streams.
 
-When an Event is created, it's assumed that it will eventually
-be published to one of the many Streams on Ficture. Publishing into
-streams is handled automatically by our system, and it is dependent on
-state attached to the logged in user, such as their privacy settings.
 
 Event Object
 ############
@@ -119,6 +120,20 @@ Event Object
      ``frame_baseurl`` field in it's ``meta`` hash. This is used to
      construct the full URL for frames, batches and strips.
    
+   Frames:
+     Events main purpose is to represent an individual moment in time
+     signified by the capture of a "Ficture," which is a series of of
+     Photos, or Frames.
+
+     An event may contain a minimum of 6 frames.
+
+     Frames are strictly ordered by the order they should be displayed in
+     to make sense to a viewer. Once an event has frames, no more frames
+     can be added, and frames can not be removed. To construct frame URLs
+     from the compact response use the following format::
+     
+        {meta.frame_baseurl}{items[NUM].id}/{items[NUM].frames[FRAME_NUM]}-{SIZE}.jpg
+
    Frame Sizes:
      All frames are stored in JPEG format and stored in a variety of sizes
      and qualities, thoughtfully optimized around various display
@@ -130,14 +145,6 @@ Event Object
      * **medium** 480x480 in medium quality
      * **full** 640x640 in high quality
      * **original** original size in original quality
-   
-   Frames:
-     Frames are strictly ordered by the order they should be displayed in
-     to make sense to a viewer. Once an event has frames, no more frames
-     can be added, and frames can not be removed. To construct frame URLs
-     from the compact response use the following format::
-     
-        {meta.frame_baseurl}{items[NUM].id}/{items[NUM].frames[FRAME_NUM]}-{SIZE}.jpg
    
    Strips:
      Strips are prerendered JPEGs of frames in Events arranged
@@ -159,7 +166,8 @@ Event Object
    Batches:
      Batches are the same idea as strips, but optimized even further for
      clients that can process binary data. The URLS are generated exactly
-     the same but with the extension ``bjpeg``
+     the same but with the extension ``bjpeg`` *further documentation
+     pending*
    
 
    .. seealso::
@@ -175,18 +183,6 @@ Read
    :arg format: The desired data format.
 
    Returns a single :http:response:`event-object` in the ``items`` key
-
-Pending
-#######
-
-.. http:method:: GET events/pending.{format}
-
-   :arg format: The desired data format.
-
-   Returns a list of stubs similar to what you get back when creating an
-   event. Only Event references that are pending, that is, they were
-   submitted with ``publish=0`` and have not yet been published, will show
-   up in this list. 
 
 Creating
 ########
@@ -308,6 +304,18 @@ Creating
      are 100% sure that your requests will NEVER be retried. Event
      creation privliges may be revoked if your application creates
      duplicate Events in the system frequently.
+
+Pending
+#######
+
+.. http:method:: GET events/pending.{format}
+
+   :arg format: The desired data format.
+
+   Returns a list of stubs similar to what you get back when creating an
+   event. Only Event references that are pending, that is, they were
+   submitted with ``publish=0`` and have not yet been published, will show
+   up in this list. 
 
 Updating
 ########
